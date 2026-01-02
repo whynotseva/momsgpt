@@ -110,7 +110,7 @@ async def subscription_proxy(token: str, request: Request):
     
     # Proxy request to Marzban
     try:
-        async with httpx.AsyncClient(verify=False, timeout=30) as client:
+        async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
             marzban_url = f"{MARZBAN_URL}/sub/{token}"
             response = await client.get(marzban_url, headers={
                 "User-Agent": headers_dict.get("user-agent", "")

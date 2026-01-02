@@ -428,7 +428,7 @@ async def add_traffic(callback: CallbackQuery, state: FSMContext):
         
         # Update via Marzban API
         import httpx
-        async with httpx.AsyncClient(verify=False, timeout=30) as client:
+        async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
             headers = await marzban_service._get_headers()
             resp = await client.put(
                 f"{marzban_service.base_url}/api/user/{username}",

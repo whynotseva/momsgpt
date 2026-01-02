@@ -22,7 +22,7 @@ class MarzbanAdminService:
         if cls._token:
             return cls._token
             
-        async with httpx.AsyncClient(verify=False, timeout=30) as client:
+        async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
             resp = await client.post(
                 f"{cls._base_url}/api/admin/token",
                 data={
@@ -44,7 +44,7 @@ class MarzbanAdminService:
         """Get all users from Marzban."""
         try:
             headers = await cls._get_headers()
-            async with httpx.AsyncClient(verify=False, timeout=30) as client:
+            async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
                 resp = await client.get(f"{cls._base_url}/api/users", headers=headers)
                 data = resp.json()
                 return data.get("users", [])
@@ -57,7 +57,7 @@ class MarzbanAdminService:
         """Get Marzban system status."""
         try:
             headers = await cls._get_headers()
-            async with httpx.AsyncClient(verify=False, timeout=30) as client:
+            async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
                 resp = await client.get(f"{cls._base_url}/api/system", headers=headers)
                 if resp.status_code == 200:
                     data = resp.json()
@@ -81,7 +81,7 @@ class MarzbanAdminService:
         """Disable a user."""
         try:
             headers = await cls._get_headers()
-            async with httpx.AsyncClient(verify=False, timeout=30) as client:
+            async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
                 resp = await client.put(
                     f"{cls._base_url}/api/user/{username}",
                     headers=headers,
@@ -97,7 +97,7 @@ class MarzbanAdminService:
         """Enable a user."""
         try:
             headers = await cls._get_headers()
-            async with httpx.AsyncClient(verify=False, timeout=30) as client:
+            async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
                 resp = await client.put(
                     f"{cls._base_url}/api/user/{username}",
                     headers=headers,
@@ -113,7 +113,7 @@ class MarzbanAdminService:
         """Reset user's traffic usage."""
         try:
             headers = await cls._get_headers()
-            async with httpx.AsyncClient(verify=False, timeout=30) as client:
+            async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
                 resp = await client.post(
                     f"{cls._base_url}/api/user/{username}/reset",
                     headers=headers
@@ -129,7 +129,7 @@ class MarzbanAdminService:
         try:
             headers = await cls._get_headers()
             # Get current expiry
-            async with httpx.AsyncClient(verify=False, timeout=30) as client:
+            async with httpx.AsyncClient(verify=os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false", timeout=30) as client:
                 user_resp = await client.get(f"{cls._base_url}/api/user/{username}", headers=headers)
                 user = user_resp.json()
                 

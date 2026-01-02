@@ -11,8 +11,9 @@ class MarzbanService:
         self.username = os.getenv("MARZBAN_USERNAME")
         self.password = os.getenv("MARZBAN_PASSWORD")
         self.token = None
-        # Disable SSL verification to avoid cert issues, increase timeout
-        self.client = httpx.AsyncClient(timeout=30.0, verify=False)
+        # SSL verification - use env var for self-signed certs in dev
+        verify_ssl = os.getenv("MARZBAN_VERIFY_SSL", "true").lower() != "false"
+        self.client = httpx.AsyncClient(timeout=30.0, verify=verify_ssl)
 
     async def _authenticate(self):
         """Get JWT token from Marzban"""
@@ -109,7 +110,7 @@ class MarzbanService:
                 }
             },
             "inbounds": {
-                "vless": ["VLESS_TCP_REALITY"]  # Must match tag in xray_config.json
+                "vless": ["VLESS_TCP_REALITY", "VLESS_WS_TLS"]  # Reality + WebSocket fallback
             },
             "expire": 0,  # Unlimited by default, managed by bot
             "data_limit": TRAFFIC_LIMIT_300GB,  # 300 GB limit
