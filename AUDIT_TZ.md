@@ -245,7 +245,109 @@ Marzban: https://instabotwebhook.ru:8000
 
 ---
 
-## 9. Вопросы для аудитора
+## 10. Бесплатные практики для работы игр (как у конкурентов)
+
+### 10.1 Конфигурация Xray (бесплатно)
+
+| Практика | Описание | Как сделать |
+|----------|----------|-------------|
+| **Смена хостинг-провайдера** | Использовать малоизвестные хостинги (H2nexus, Servers Tech) вместо популярных | Арендовать VPS у провайдеров, не в базах VPN-детекции |
+| **Несколько SNI** | Ротация между apple.com, microsoft.com, dropbox.com | Добавить в serverNames массив |
+| **Порт 8443 вместо 443** | Менее мониторится DPI | Изменить port в inbound |
+| **XUDP** | Улучшенная поддержка UDP для игр | Включить в streamSettings |
+| **Flow: xtls-rprx-vision** | Используется конкурентами | Добавить в user settings |
+
+### 10.2 Cloudflare WARP (бесплатно)
+
+WARP даёт "чистый" IP через сеть Cloudflare:
+```bash
+# Установка на сервер
+curl -fsSL https://pkg.cloudflarewarp.com/cloudflare-warp-ascii.repo | \
+  sudo tee /etc/yum.repos.d/cloudflare-warp.repo
+sudo yum install cloudflare-warp
+
+# Регистрация
+warp-cli register
+
+# Конфигурация как outbound в Xray
+# Использовать WireGuard outbound с WARP credentials
+```
+
+**Задача аудитору:** Проверить, можно ли настроить WARP как outbound без конфликта с Reality inbound.
+
+### 10.3 Бесплатные Residential Proxy (ограниченно)
+
+| Сервис | Бесплатный лимит | Протокол |
+|--------|------------------|----------|
+| Webshare.io | 10 прокси | SOCKS5 |
+| ProxyScrape | Ротация | HTTP |
+| FreeProxy.world | Список IP | HTTP |
+
+**Минусы:** Нестабильные, медленные, не подходят для игр.
+
+### 10.4 Оптимизация для UDP/игр
+
+```json
+// xray_config.json - оптимизация для игр
+{
+  "inbounds": [{
+    "streamSettings": {
+      "sockopt": {
+        "tcpFastOpen": true,
+        "tproxy": "off"
+      }
+    }
+  }],
+  "outbounds": [{
+    "protocol": "freedom",
+    "settings": {
+      "domainStrategy": "UseIP"
+    },
+    "streamSettings": {
+      "sockopt": {
+        "mark": 255
+      }
+    }
+  }]
+}
+```
+
+### 10.5 Использование CDN (Cloudflare)
+
+Бесплатный Cloudflare перед WebSocket:
+1. Добавить домен в Cloudflare (бесплатно)
+2. Проксировать WebSocket через Cloudflare
+3. IP сервера скрыт за Cloudflare
+
+```
+Клиент → Cloudflare CDN → Nginx → Xray WebSocket
+```
+
+**Преимущества:**
+- IP Cloudflare не в базах VPN
+- Бесплатный SSL
+- DDoS защита
+
+### 10.6 Рекомендации аудитору
+
+Проверить и предложить:
+
+1. **Бесплатные решения для игр:**
+   - [ ] WARP integration возможна?
+   - [ ] CDN через Cloudflare для WebSocket
+   - [ ] Оптимизация UDP в текущем конфиге
+
+2. **Смена провайдера (низкая стоимость):**
+   - [ ] Какие VPS не в базах VPN-детекции?
+   - [ ] H2nexus / Servers Tech / аналоги
+
+3. **Тестирование:**
+   - [ ] Проверить работают ли игры у конкурентов (LunarVPN)
+   - [ ] Если да — что именно отличается?
+
+---
+
+## 11. Вопросы для аудитора
 
 1. Почему Supercell игры блокируют наш VPN, но Instagram работает?
 2. Какой тип IP нужен для игр (Residential/Datacenter)?
