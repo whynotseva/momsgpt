@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Дашборд - MomsVPN Admin{% endblock %}
+{% block page_title %}📊 Дашборд{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <!-- Stats Cards -->
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_users or 0 }}</div>
+            <div class="stat-label">Всего пользователей</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.active_users or 0 }}</div>
+            <div class="stat-label">Активных</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">📡</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.online_users or 0 }}</div>
+            <div class="stat-label">Онлайн сейчас</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_traffic_gb or 0 }} ГБ</div>
+            <div class="stat-label">Использовано трафика</div>
+        </div>
+    </div>
+</div>
+
+<!-- Server Status -->
+<div class="card">
+    <div class="card-header">
+        <h2>🖥️ Статус сервера</h2>
+    </div>
+    <div class="card-body">
+        {% if stats.server_online %}
+        <div class="server-status online">
+            <span class="status-dot"></span>
+            <span>Сервер онлайн</span>
+        </div>
+        {% else %}
+        <div class="server-status offline">
+            <span class="status-dot"></span>
+            <span>Сервер недоступен</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-header">
+        <h2>⚡ Быстрые действия</h2>
+    </div>
+    <div class="card-body">
+        <div class="quick-actions">
+            <a href="/admin/keys" class="action-btn">
+                <span>🔑</span>
+                <span>Управление ключами</span>
+            </a>
+            <a href="/admin/users" class="action-btn">
+                <span>👥</span>
+                <span>Пользователи</span>
+            </a>
+            <a href="/admin/servers" class="action-btn">
+                <span>🖥️</span>
+                <span>Статус серверов</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

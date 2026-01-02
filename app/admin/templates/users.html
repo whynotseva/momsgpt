@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Пользователи - MomsVPN Admin{% endblock %}
+{% block page_title %}👥 Пользователи{% endblock %}
+
+{% block actions %}
+<form class="search-form" method="GET" action="/admin/users">
+    <input type="text" name="search" placeholder="Поиск по username..." value="{{ search or '' }}" class="search-input">
+    <select name="status" class="filter-select">
+        <option value="">Все статусы</option>
+        <option value="active" {% if status=='active' %}selected{% endif %}>Активные</option>
+        <option value="disabled" {% if status=='disabled' %}selected{% endif %}>Заблокированные</option>
+        <option value="limited" {% if status=='limited' %}selected{% endif %}>Лимит</option>
+        <option value="expired" {% if status=='expired' %}selected{% endif %}>Истёк</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Найти</button>
+</form>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Список пользователей</h2>
+        <span class="badge">{{ total }} всего</span>
+    </div>
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Статус</th>
+                    <th>Трафик</th>
+                    <th>Истекает</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <a href="/admin/users/{{ user.username.replace('user_', '') }}" class="user-link">
+                            {{ user.username }}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ user.status }}">
+                            {{ user.status }}
+                        </span>
+                    </td>
+                    <td>
+                        {% set used_gb = (user.used_traffic or 0) / (1024**3) %}
+                        {% set limit_gb = (user.data_limit or 0) / (1024**3) %}
+                        {% if user.data_limit %}
+                        {{ "%.2f"|format(used_gb) }} / {{ "%.0f"|format(limit_gb) }} ГБ
+                        {% else %}
+                        {{ "%.2f"|format(used_gb) }} ГБ / ∞
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.expire %}
+                        {{ user.expire | timestamp_to_date }}
+                        {% else %}
+                        ♾️ Бессрочно
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/admin/users/{{ user.username.replace('user_', '') }}" class="btn btn-sm">Детали</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="empty-state">Пользователи не найдены</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

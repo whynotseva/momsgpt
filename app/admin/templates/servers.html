@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Серверы - MomsVPN Admin{% endblock %}
+{% block page_title %}🖥️ Статус серверов{% endblock %}
+
+{% block content %}
+<div class="servers-grid">
+    <div class="server-card {% if server.online %}status-online{% else %}status-offline{% endif %}">
+        <div class="server-header">
+            <span class="server-icon">🇳🇱</span>
+            <span class="server-name">Нидерланды</span>
+            <span class="server-status-dot {% if server.online %}online{% else %}offline{% endif %}"></span>
+        </div>
+
+        <div class="server-info">
+            {% if server.online %}
+            <div class="info-row">
+                <span>Статус:</span>
+                <span class="value online">🟢 Online</span>
+            </div>
+            <div class="info-row">
+                <span>Версия:</span>
+                <span class="value">{{ server.version or 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+                <span>Пользователей онлайн:</span>
+                <span class="value">{{ server.online_users or 0 }}</span>
+            </div>
+            <div class="info-row">
+                <span>Всего пользователей:</span>
+                <span class="value">{{ server.total_users or 0 }}</span>
+            </div>
+            <div class="info-row">
+                <span>CPU:</span>
+                <span class="value">{{ server.cpu_usage or 0 }}%</span>
+            </div>
+            <div class="info-row">
+                <span>Память:</span>
+                {% if server.mem_total %}
+                {% set mem_percent = (server.mem_used / server.mem_total * 100)|round(1) %}
+                <span class="value">{{ mem_percent }}%</span>
+                {% else %}
+                <span class="value">N/A</span>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="info-row error">
+                <span>Статус:</span>
+                <span class="value offline">🔴 Offline</span>
+            </div>
+            <p class="error-message">Сервер недоступен. Проверьте подключение.</p>
+            {% endif %}
+        </div>
+
+        <div class="server-actions">
+            <button class="btn btn-primary" onclick="refreshServerStatus()">
+                🔄 Обновить статус
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function refreshServerStatus() {
+        location.reload();
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(function () {
+        fetch('/admin/api/servers/status')
+            .then(r => r.json())
+            .then(data => {
+                // Update status indicator
+                const dot = document.querySelector('.server-status-dot');
+                if (data.online) {
+                    dot.classList.add('online');
+                    dot.classList.remove('offline');
+                } else {
+                    dot.classList.add('offline');
+                    dot.classList.remove('online');
+                }
+            });
+    }, 30000);
+</script>
+{% endblock %}

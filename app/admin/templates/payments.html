@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Платежи - MomsVPN Admin{% endblock %}
+{% block page_title %}💰 Платежи{% endblock %}
+
+{% block content %}
+<!-- Revenue Cards -->
+<div class="revenue-grid">
+    <div class="revenue-card">
+        <div class="revenue-label">Сегодня</div>
+        <div class="revenue-value">{{ revenue.today or 0 }} ₽</div>
+    </div>
+    <div class="revenue-card">
+        <div class="revenue-label">Неделя</div>
+        <div class="revenue-value">{{ revenue.week or 0 }} ₽</div>
+    </div>
+    <div class="revenue-card">
+        <div class="revenue-label">Месяц</div>
+        <div class="revenue-value">{{ revenue.month or 0 }} ₽</div>
+    </div>
+    <div class="revenue-card total">
+        <div class="revenue-label">Всего</div>
+        <div class="revenue-value">{{ revenue.total or 0 }} ₽</div>
+    </div>
+</div>
+
+<!-- Payments Table -->
+<div class="card">
+    <div class="card-header">
+        <h2>История платежей</h2>
+        <form class="filter-form" method="GET">
+            <select name="status" class="filter-select" onchange="this.form.submit()">
+                <option value="">Все статусы</option>
+                <option value="succeeded" {% if status=='succeeded' %}selected{% endif %}>Успешные</option>
+                <option value="pending" {% if status=='pending' %}selected{% endif %}>Ожидание</option>
+                <option value="canceled" {% if status=='canceled' %}selected{% endif %}>Отменённые</option>
+            </select>
+        </form>
+    </div>
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Пользователь</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td>{{ payment.id }}</td>
+                    <td>{{ payment.user_id }}</td>
+                    <td>{{ payment.amount }} ₽</td>
+                    <td>
+                        <span class="status-badge status-{{ payment.status }}">
+                            {{ payment.status }}
+                        </span>
+                    </td>
+                    <td>{{ payment.created_at }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        Платежей пока нет
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

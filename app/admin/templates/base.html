@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MomsVPN Admin{% endblock %}</title>
+    <link rel="stylesheet" href="/admin/static/css/admin.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="logo">🤎</span>
+                <span class="brand">MomsVPN</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                    <span class="icon">📊</span>
+                    <span>Дашборд</span>
+                </a>
+                <a href="/admin/users" class="nav-item {% if active_page == 'users' %}active{% endif %}">
+                    <span class="icon">👥</span>
+                    <span>Пользователи</span>
+                </a>
+                <a href="/admin/keys" class="nav-item {% if active_page == 'keys' %}active{% endif %}">
+                    <span class="icon">🔑</span>
+                    <span>Ключи</span>
+                </a>
+                <a href="/admin/servers" class="nav-item {% if active_page == 'servers' %}active{% endif %}">
+                    <span class="icon">🖥️</span>
+                    <span>Серверы</span>
+                </a>
+                <a href="/admin/payments" class="nav-item {% if active_page == 'payments' %}active{% endif %}">
+                    <span class="icon">💰</span>
+                    <span>Платежи</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <span class="version">v1.0.0</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 class="page-title">{% block page_title %}Панель управления{% endblock %}</h1>
+                <div class="top-bar-actions">
+                    {% block actions %}{% endblock %}
+                </div>
+            </header>
+            
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <script src="/admin/static/js/admin.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

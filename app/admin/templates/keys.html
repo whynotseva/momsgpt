@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Ключи - MomsVPN Admin{% endblock %}
+{% block page_title %}🔑 Управление ключами{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Все ключи</h2>
+        <span class="badge">{{ keys|length }} всего</span>
+    </div>
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Статус</th>
+                    <th>Трафик</th>
+                    <th>Лимит</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key in keys %}
+                <tr>
+                    <td class="username-cell">{{ key.username }}</td>
+                    <td>
+                        <span class="status-badge status-{{ key.status }}">
+                            {% if key.status == 'active' %}🟢 Активен
+                            {% elif key.status == 'disabled' %}🔴 Заблокирован
+                            {% elif key.status == 'limited' %}🟡 Лимит
+                            {% elif key.status == 'expired' %}⏰ Истёк
+                            {% else %}{{ key.status }}{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% set used_gb = (key.used_traffic or 0) / (1024**3) %}
+                        {{ "%.2f"|format(used_gb) }} ГБ
+                    </td>
+                    <td>
+                        {% if key.data_limit %}
+                        {{ (key.data_limit / (1024**3))|int }} ГБ
+                        {% else %}
+                        ♾️ Безлимит
+                        {% endif %}
+                    </td>
+                    <td class="actions-cell">
+                        {% if key.status == 'active' %}
+                        <form method="POST" action="/admin/keys/{{ key.username }}/block" class="inline-form">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Заблокировать ключ?')">
+                                🔒 Блок
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="/admin/keys/{{ key.username }}/unblock" class="inline-form">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                🔓 Разблок
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <form method="POST" action="/admin/keys/{{ key.username }}/reset-traffic" class="inline-form">
+                            <button type="submit" class="btn btn-warning btn-sm"
+                                onclick="return confirm('Сбросить трафик?')">
+                                🔄 Сброс
+                            </button>
+                        </form>
+
+                        <button class="btn btn-primary btn-sm" onclick="showExtendModal('{{ key.username }}')">
+                            ⏰ Продлить
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="empty-state">Ключи не найдены</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Extend Modal -->
+<div id="extendModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>Продлить подписку</h3>
+        <form id="extendForm" method="POST">
+            <div class="form-group">
+                <label>Количество дней:</label>
+                <input type="number" name="days" value="30" min="1" max="365" class="form-input">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="hideExtendModal()">Отмена</button>
+                <button type="submit" class="btn btn-primary">Продлить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showExtendModal(username) {
+        document.getElementById('extendForm').action = '/admin/keys/' + username + '/extend';
+        document.getElementById('extendModal').style.display = 'flex';
+    }
+
+    function hideExtendModal() {
+        document.getElementById('extendModal').style.display = 'none';
+    }
+</script>
+{% endblock %}
